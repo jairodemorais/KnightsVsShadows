@@ -5,23 +5,23 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 public class Arrow {
-	private int ySpeed;
+	private int xSpeed;
 	private int BMP_ROWS;
 	private int BMP_COLUMNS;
 	private Bitmap bmp;
 	private GameView gameView;
-	private int height;
+	private int width;
 	private int currentFrame;
 	private int y;
 	private int x;
 	
-	public Arrow(Bitmap bmp, GameView gameView,int x, int y, int ySpeed, int rows, int columns) {
-		this.ySpeed = ySpeed;
+	public Arrow(Bitmap bmp, GameView gameView,int x, int y, int xSpeed, int rows, int columns) {
+		this.xSpeed = xSpeed;
 		this.bmp = bmp;
 		this.BMP_ROWS = rows;
 		this.BMP_COLUMNS = columns;
 		this.gameView = gameView;
-		this.height = bmp.getHeight() / BMP_ROWS;
+		this.width = bmp.getWidth() / BMP_COLUMNS;
 		this.x = x;
 		this.y = y;
 	}
@@ -31,8 +31,8 @@ public class Arrow {
 		canvas.drawBitmap(bmp, this.x, this.y, null);
 	}
 	private void update(){
-		if(this.y < gameView.getHeight() - height - ySpeed){
-			this.y =this.y - ySpeed;
+		if(this.x < gameView.getHeight() - width - xSpeed){
+			this.x = this.x + xSpeed;
 		}
 		currentFrame = ++currentFrame % BMP_COLUMNS;
 	}
