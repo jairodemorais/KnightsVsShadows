@@ -36,7 +36,7 @@ public class Row {
 	public Cell getCell(int x){
 		Cell activeCell = null;
 		for(Cell cell : cells){
-			if(x > cell.getStartX() && x < cell.getEndX()){
+			if(x >= cell.getStartX() && x <= cell.getEndX()){
 				activeCell = cell;
 				break;
 			}

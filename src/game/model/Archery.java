@@ -9,8 +9,8 @@ public class Archery extends Knight{
 	private Bitmap arrowImag;
 	private GameView gameView;
 	
-	public Archery(Bitmap bmp, Bitmap arrowImg, GameView gameView, int x, int y, int rows, int columns) {
-		super(bmp, x ,y,rows, columns);
+	public Archery(Bitmap bmp, Bitmap arrowImg, GameView gameView, int x, int y, int rows, int columns, int energy) {
+		super(bmp, x ,y,rows, columns, energy);
 		this.gameView = gameView;
 		this.arrowImag = arrowImg;
 	}

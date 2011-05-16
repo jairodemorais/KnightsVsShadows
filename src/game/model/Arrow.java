@@ -31,7 +31,7 @@ public class Arrow {
 		canvas.drawBitmap(bmp, this.x, this.y, null);
 	}
 	private void update(){
-		if(this.x < gameView.getHeight() - width - xSpeed){
+		if(this.x < gameView.getWidth() - width - xSpeed){
 			this.x = this.x + xSpeed;
 		}
 		currentFrame = ++currentFrame % BMP_COLUMNS;

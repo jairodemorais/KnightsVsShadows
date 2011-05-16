@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 public class Knight extends Character{
 	private boolean draging = true;
 	
-	public Knight(Bitmap bmp, int x, int y, int rows, int columns) {
-		super(bmp, x, y, rows, columns);
+	public Knight(Bitmap bmp, int x, int y, int rows, int columns, int energy) {
+		super(bmp, x, y, rows, columns, energy);
 	}
 	
 	@Override
@@ -27,5 +27,11 @@ public class Knight extends Character{
 	}
 	public void returnPrevPosition() {
 		setCoordinate(prevX, prevY);		
+	}
+
+	@Override
+	protected int getAnimationRow() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

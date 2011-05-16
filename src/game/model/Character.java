@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-public class Character {
+public abstract class Character {
 	protected Bitmap bmp;
 	protected int BMP_COLUMNS;
 	protected int BMP_ROWS;
@@ -18,8 +18,9 @@ public class Character {
 	protected Paint paint;
 	protected int prevX;
 	protected int prevY;
+	protected int energy;
 	
-	public Character(Bitmap bmp, int x, int y, int rows,int columns) {
+	public Character(Bitmap bmp, int x, int y, int rows,int columns, int energy) {
 		this.BMP_ROWS = rows;
 		this.BMP_COLUMNS = columns;
 		paint = new Paint();
@@ -28,6 +29,7 @@ public class Character {
 		this.height = bmp.getHeight() / BMP_ROWS;
 		this.x = x;
 		this.y = y;
+		this.energy = energy;
 	}
 
 	public void onDraw(Canvas canvas) {
@@ -54,9 +56,7 @@ public class Character {
 	}
 
 	// movement = 0 walk, 1 attack, 2 die
-	private int getAnimationRow() {
-		return 0;
-	}
+	protected abstract int getAnimationRow();
 
 	public void setCoordinate(int x, int y) {
 		this.x = x - getWidth() / 2;

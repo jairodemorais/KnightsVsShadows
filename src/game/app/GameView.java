@@ -2,9 +2,14 @@ package game.app;
 
 import game.model.Archery;
 import game.model.Knight;
+import game.model.Shadow;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import org.games.R;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,12 +26,17 @@ public class GameView extends SurfaceView {
 	private GameLoopThread gameLoopThread;
 	private SurfaceHolder holder;
 	private List<Knight> knights = new ArrayList<Knight>();
+	private List<Shadow> shadows = new ArrayList<Shadow>();
 	private int VIEW_COLUMNS = 10;
-	private int VIEW_ROWS = 4;
+	private int VIEW_ROWS = 3;
 	private List<Row> rows = new ArrayList<Row>(VIEW_ROWS);
 	private Rect activeCellRec = new Rect();
 	private Cell activeCell = null;
-
+	private int nextAttackFrame = 25;
+	private int frameNumber = 0;
+	private int shadowNumber = 5;
+	private Random ran = new Random();
+	
 	public GameView(Context context) {
 		super(context);
 		gameLoopThread = new GameLoopThread(this);
@@ -138,6 +148,24 @@ public class GameView extends SurfaceView {
 		for (int i = 0; i <= knights.size() - 1; i++) {
 			knights.get(i).onDraw(canvas);
 		}
+		for (int i = 0; i <= shadows.size() - 1; i++) {
+			shadows.get(i).onDraw(canvas);
+		}
+		if(frameNumber >= nextAttackFrame){
+			createShadow();
+			nextAttackFrame = nextAttackFrame + ran.nextInt(20);
+		}
+		else{
+			frameNumber++;
+		}
+	}
+
+	private void createShadow() {
+		if(shadows.size() < shadowNumber){
+			Bitmap bullBmp = BitmapFactory.decodeResource(getResources(), R.drawable.bull);
+			shadows.add(new Shadow(bullBmp, getWidth(), rows.get(ran.nextInt(VIEW_ROWS)).getStartY(), 2, 3, -5,4,this));
+		}
+		
 	}
 
 	private void createGrid() {
@@ -155,19 +183,19 @@ public class GameView extends SurfaceView {
 
 	private void creatCharacters() {
 		Bitmap gladiator = BitmapFactory.decodeResource(getResources(),
-				R.drawable.gladiator);
-		knights.add(new Knight(gladiator, 0, 200, 4, 3));
+				R.drawable.archery);
+		knights.add(new Knight(gladiator, 0, 200, 4, 3,5));
 		Bitmap archery = BitmapFactory.decodeResource(getResources(),
 				R.drawable.archery);
 		Bitmap arrow = BitmapFactory.decodeResource(getResources(),
 				R.drawable.arrow);
-		knights.add(new Archery(archery, arrow, this, 50, 200, 4, 3));
+		knights.add(new Archery(archery, arrow, this, 50, 200, 4, 3,5));
 	}
 
-	private Cell getCell(int x, int y) {
+	public Cell getCell(int x, int y) {
 		Cell cell = null;
 		for (Row row : this.rows) {
-			if (y > row.getStartY() && y < row.getEndY()) {
+			if (y >= row.getStartY() && y <= row.getEndY()) {
 				cell = row.getCell(x);
 				break;
 			}
