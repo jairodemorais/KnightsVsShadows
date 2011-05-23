@@ -1,32 +1,31 @@
 package game.app.andEngine.model;
 
 import game.app.andEngine.LevelController;
+import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 public class Knight extends Character{
 	public Knight(float pX, float pY, float pTileWidth, float pTileHeight,
-			TiledTextureRegion pTiledTextureRegion,	LevelController nLevelController) {
-		super(pX, pY, pTileWidth, pTileHeight, pTiledTextureRegion, nLevelController);
-		// TODO Auto-generated constructor stub
+			TiledTextureRegion pTiledTextureRegion,	LevelController nLevelController, int powerAttack, int defence) {
+		super(pX, pY, pTileWidth, pTileHeight, pTiledTextureRegion,nLevelController, powerAttack, defence);
 	}
-
 	@Override
-	protected boolean onBeforePositionChanged() {
-		//speed up
-		if(frameCount < 2){
-			frameCount++;
-			return true;
+    public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, 
+    		final float pTouchAreaLocalY) {
+		if(pSceneTouchEvent.isActionDown()){
+			this.setScale(1.5f);
 		}
-		frameCount = 0;
-		int enemyListSize = levelController.getShadows().size();
-		for(int i = 0; i < enemyListSize; i++){
-			if(this.collidesWith(levelController.getShadows().get(i)))
-			{
-				levelController.callbackCollisionShadows(i);
-				return false;
-			}
+		else if(pSceneTouchEvent.isActionMove()){
+			this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
+		}
+		else if(pSceneTouchEvent.isActionUp()){
+			this.setScale(1);
 		}
 		return true;
-	}
-	
+    }
+	@Override
+	protected boolean onBeforePositionChanged() {
+		// TODO Auto-generated method stub
+		return false;
+	};	
 }

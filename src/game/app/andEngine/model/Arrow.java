@@ -1,40 +1,32 @@
 package game.app.andEngine.model;
 
-import game.app.GameView;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import game.app.andEngine.LevelController;
 
-public class Arrow {
-	private int xSpeed;
-	private int BMP_ROWS;
-	private int BMP_COLUMNS;
-	private Bitmap bmp;
-	private GameView gameView;
-	private int width;
-	private int currentFrame;
-	private int y;
-	private int x;
-	
-	public Arrow(Bitmap bmp, GameView gameView,int x, int y, int xSpeed, int rows, int columns) {
-		this.xSpeed = xSpeed;
-		this.bmp = bmp;
-		this.BMP_ROWS = rows;
-		this.BMP_COLUMNS = columns;
-		this.gameView = gameView;
-		this.width = bmp.getWidth() / BMP_COLUMNS;
-		this.x = x;
-		this.y = y;
+import org.anddev.andengine.entity.modifier.MoveModifier;
+import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
+
+public class Arrow extends Character{
+	private float initialX;
+	public Arrow(float pX, float pY, float pTileWidth, float pTileHeight,
+			TiledTextureRegion pTiledTextureRegion,
+			LevelController levelController, int powerAttack, int defence) {
+		super(pX, pY, pTileWidth, pTileHeight, pTiledTextureRegion, levelController, powerAttack, defence);
+		this.initialX = pX;
+		this.registerEntityModifier(new MoveModifier(10, pX,levelController.mCameraWidth, pY,pY));
 	}
-	
-	public void onDraw(Canvas canvas){
-		update();
-		canvas.drawBitmap(bmp, this.x, this.y, null);
-	}
-	private void update(){
-		if(this.x < gameView.getWidth() - width - xSpeed){
-			this.x = this.x + xSpeed;
+
+	@Override
+	protected boolean onBeforePositionChanged() {
+		int shadowListSize = levelController.getShadows().size();
+		for(int i = 0; i < shadowListSize; i++){
+			if(this.collidesWith(levelController.getShadows().get(i)))
+			{
+				this.clearEntityModifiers();
+				this.registerEntityModifier(new MoveModifier(10, initialX,levelController.mCameraWidth, mY,mY));
+				return false;
+			}
 		}
-		currentFrame = ++currentFrame % BMP_COLUMNS;
+		return true;
 	}
 
 }

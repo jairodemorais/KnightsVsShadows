@@ -11,6 +11,7 @@ import org.anddev.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
+import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
@@ -26,8 +27,12 @@ public class AndEngineView extends BaseGameActivity {
 	public LevelController levelController;
 	public TiledTextureRegion knightTextureRegion;
 	public TiledTextureRegion bullTextureRegion;
+	public TiledTextureRegion fireBallTextureRegion;
+	public TextureRegion bloodTextureRegion;
 	private Texture knightTexture;
 	private Texture bullTexture;
+	private Texture fireBallTexture;
+	private Texture bloodTexture;
 	private Camera camera;
 	@Override
 	public Engine onLoadEngine() {
@@ -53,9 +58,14 @@ public class AndEngineView extends BaseGameActivity {
 		this.bullTexture  = new Texture(256, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		bullTextureRegion = TextureRegionFactory.createTiledFromAsset(this.bullTexture, this,
 																			"gfx/bull.png",0,0,3,2);
-		
+		fireBallTexture = new Texture(64, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		fireBallTextureRegion = TextureRegionFactory.createTiledFromAsset(this.fireBallTexture, this,
+																			"gfx/fireBall.png",0,0,1,1);
+		bloodTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		bloodTextureRegion = TextureRegionFactory.createFromAsset(this.bloodTexture, this,
+																			"gfx/blood.png",0,0);
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		this.mEngine.getTextureManager().loadTextures(knightTexture, bullTexture);
+		this.mEngine.getTextureManager().loadTextures(knightTexture, bullTexture,fireBallTexture,bloodTexture);
 
 	}
 

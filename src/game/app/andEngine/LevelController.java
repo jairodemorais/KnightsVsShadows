@@ -2,6 +2,8 @@ package game.app.andEngine;
 
 import game.app.Cell;
 import game.app.Row;
+import game.app.andEngine.model.Archery;
+import game.app.andEngine.model.Arrow;
 import game.app.andEngine.model.Knight;
 import game.app.andEngine.model.Shadow;
 
@@ -9,17 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.anddev.andengine.engine.handler.timer.ITimerCallback;
+import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.modifier.PathModifier.Path;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.shape.Shape;
-import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
-import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
+import org.anddev.andengine.entity.sprite.BaseSprite;
+import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
-import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
-
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 
 public class LevelController {
 	public Scene scene;
@@ -29,30 +27,32 @@ public class LevelController {
 	private int VIEW_ROWS = 3;
 	private List<Row> rows = new ArrayList<Row>(VIEW_ROWS);
 	//Game Config Settings
-	private List<Shape> knights;
-	private List<Shape> shadows;
 	private int level;
-	private Knight mPlayer;
 	private boolean isGameFinished;
 	public int mCameraWidth;
 	public int mCameraHeight;
+	private List<Knight> knights = new ArrayList<Knight>();
+	private List<Arrow> arrows = new ArrayList<Arrow>();
+	private List<Shadow> shadows;
 	
 	public LevelController(AndEngineView view){
 		level= 0;
 		this.viewController = view;
 	}
-	
-	public void CreateCharacter(TiledTextureRegion characterTextureRegion, int x, int y){
-		mPlayer = new Knight(x, y, 60,60,characterTextureRegion, this);
-		
-		FixtureDef FIXTURE = PhysicsFactory.createFixtureDef(1, 0.5f, 0.5f);
-		Body body = PhysicsFactory.createBoxBody(mPhysicsWorld, mPlayer, BodyType.DynamicBody, FIXTURE);
-		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(mPlayer, body, true, false));
+	public void CreateArrow(float x, float y){
+		Arrow mArrow = new Arrow(x,y,45, 20,viewController.fireBallTextureRegion,this,3,1);
+		scene.getLastChild().attachChild(mArrow);
+		arrows.add(mArrow);
+	}
+	private void CreateCharacter(int x, int y){
+		Knight mPlayer = new Archery(x, y, 80,80,viewController.knightTextureRegion, this, 4, 8);
 		scene.getLastChild().attachChild(mPlayer);
 		knights.add(mPlayer);
+		scene.registerTouchArea(mPlayer);
+		scene.setTouchAreaBindingEnabled(true);
 	}
-	public void addShadow(Path path, int speed, TiledTextureRegion shadowTextureRegion){
-		Shadow enemy = new Shadow(path,speed, 150, 150, shadowTextureRegion, this);
+	private void addShadow(Path path, int speed){
+		Shadow enemy = new Shadow(path,speed, 150, 150, viewController.bullTextureRegion, this, 3,6);
 		scene.getLastChild().attachChild(enemy);
 		shadows.add(enemy);
 	}
@@ -87,29 +87,22 @@ public class LevelController {
 	
 	
 	private void setCurrentLevel(int levelId) {
-		// TODO Auto-generated method stub
+		this.level = levelId;
 	}
 	public void loadLevel1(){
-		shadows = new ArrayList<Shape>();
-		knights = new ArrayList<Shape>();
-		Random ran = new Random();
-		int y1 = rows.get(ran.nextInt(VIEW_ROWS)).getStartY();
-		CreateCharacter(viewController.knightTextureRegion, 90, y1);
-		Path path = new Path(2).to(500, y1).to(0, y1);
-		addShadow(path,5,viewController.bullTextureRegion);
-		/*int y2 = rows.get(ran.nextInt(VIEW_ROWS)).getStartY();
-		Path path2 = new Path(2).to(500, y2).to(0, y2);
-		addShadow(path2,3,viewController.bullTextureRegion);
-		int y3 = rows.get(ran.nextInt(VIEW_ROWS)).getStartY();
-		Path path3 = new Path(2).to(500, y3).to(0, y3);
-		addShadow(path3,8,viewController.bullTextureRegion);*/
+		shadows = new ArrayList<Shadow>(8);
+		CreateCharacter(90, 0);
+		creteLevelShadowHandler(1);
 	}
 	
-	public List<Shape> getKnights(){
+	public List<Knight> getKnights(){
 	 return this.knights;
 	}
-	public List<Shape> getShadows(){
+	public List<Shadow> getShadows(){
 	 return this.shadows;
+	}
+	public List<Arrow> getArrows(){
+	 return this.arrows;
 	}
 	public void setmPhysicsWorld(PhysicsWorld mPhysicsWorld) {
 		this.mPhysicsWorld = mPhysicsWorld;
@@ -131,17 +124,31 @@ public class LevelController {
 	}
 
 	public void callbackCollisionKnights(int knightIndex) {
-		final Shape knight = this.knights.get(knightIndex);
-		
+
 	}
-	public void callbackCollisionShadows(int shadowIndex){
-		final Shape shadow = this.shadows.get(shadowIndex);
+	public void callbackShadowDead(final Shadow shadow){
 		this.viewController.getEngine().runOnUpdateThread(new Runnable() {
             @Override
             public void run() {
-            	//scene.getLastChild().detachChild(shadow);
+            	scene.getLastChild().detachChild(shadow);
+            	scene.getLastChild().attachChild(new Sprite(shadow.getX(), shadow.getY(),150,150, viewController.bloodTextureRegion));
             }
 		});
-		this.shadows.remove(shadowIndex);
+		this.shadows.remove(shadow);
+	}
+	
+	public void creteLevelShadowHandler(int lvlId){
+		int[] shadowInterval = new int[]{4,8,4,2,1};
+        final TimerHandler shadowTimeHandler = new TimerHandler(shadowInterval[lvlId], new ITimerCallback() {
+                    @Override
+                    public void onTimePassed(TimerHandler pTimerHandler) {
+                    	Random ran = new Random();
+                		int y1 = rows.get(ran.nextInt(VIEW_ROWS)).getStartY();
+                    	Path path = new Path(2).to(700, y1).to(0, y1);
+                		addShadow(path,5);
+                    }
+                });
+        shadowTimeHandler.setAutoReset(true);
+        this.viewController.getEngine().registerUpdateHandler(shadowTimeHandler);
 	}
 }
