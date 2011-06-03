@@ -15,14 +15,14 @@ import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.modifier.PathModifier.Path;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.sprite.BaseSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
+import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 public class LevelController {
 	public Scene scene;
 	private PhysicsWorld mPhysicsWorld;
-	private AndEngineView viewController;
+	public AndEngineView viewController;
 	private int VIEW_COLUMNS = 10;
 	private int VIEW_ROWS = 3;
 	private List<Row> rows = new ArrayList<Row>(VIEW_ROWS);
@@ -45,14 +45,15 @@ public class LevelController {
 		arrows.add(mArrow);
 	}
 	private void CreateCharacter(int x, int y){
-		Knight mPlayer = new Archery(x, y, 80,80,viewController.knightTextureRegion, this, 4, 8);
+		Knight mPlayer = new Archery(x, y, 80,80,viewController.knightTextureRegion, this, 1, 800);
 		scene.getLastChild().attachChild(mPlayer);
 		knights.add(mPlayer);
 		scene.registerTouchArea(mPlayer);
 		scene.setTouchAreaBindingEnabled(true);
 	}
 	private void addShadow(Path path, int speed){
-		Shadow enemy = new Shadow(path,speed, 150, 150, viewController.bullTextureRegion, this, 3,6);
+		TiledTextureRegion newReg = viewController.bullTextureRegion.clone();
+		Shadow enemy = new Shadow(path,speed, 150, 150, newReg, this, 1,600);
 		scene.getLastChild().attachChild(enemy);
 		shadows.add(enemy);
 	}
@@ -123,8 +124,14 @@ public class LevelController {
 		}
 	}
 
-	public void callbackCollisionKnights(int knightIndex) {
-
+	public void callbackCollisionArrow(final Arrow arrow) {
+		this.viewController.getEngine().runOnUpdateThread(new Runnable() {
+            @Override
+            public void run() {
+            	scene.getLastChild().detachChild(arrow);
+            }
+		});
+		this.arrows.remove(arrow);
 	}
 	public void callbackShadowDead(final Shadow shadow){
 		this.viewController.getEngine().runOnUpdateThread(new Runnable() {
@@ -137,7 +144,7 @@ public class LevelController {
 		this.shadows.remove(shadow);
 	}
 	
-	public void creteLevelShadowHandler(int lvlId){
+	private void creteLevelShadowHandler(int lvlId){
 		int[] shadowInterval = new int[]{4,8,4,2,1};
         final TimerHandler shadowTimeHandler = new TimerHandler(shadowInterval[lvlId], new ITimerCallback() {
                     @Override

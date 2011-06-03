@@ -22,7 +22,7 @@ public class Arrow extends Character{
 			if(this.collidesWith(levelController.getShadows().get(i)))
 			{
 				this.clearEntityModifiers();
-				this.registerEntityModifier(new MoveModifier(10, initialX,levelController.mCameraWidth, mY,mY));
+				levelController.callbackCollisionArrow(this);
 				return false;
 			}
 		}
