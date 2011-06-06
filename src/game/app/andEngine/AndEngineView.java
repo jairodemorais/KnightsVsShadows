@@ -9,6 +9,8 @@ import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
+import org.anddev.andengine.opengl.font.Font;
+import org.anddev.andengine.opengl.font.FontFactory;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
@@ -17,6 +19,7 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -34,6 +37,9 @@ public class AndEngineView extends BaseGameActivity {
 	private Texture fireBallTexture;
 	private Texture bloodTexture;
 	private Camera camera;
+	private Texture mFontTexture;
+	public Font mFont;
+	
 	@Override
 	public Engine onLoadEngine() {
 		levelController = new LevelController(this);
@@ -52,6 +58,12 @@ public class AndEngineView extends BaseGameActivity {
 
 	@Override
 	public void onLoadResources() {	
+		FontFactory.setAssetBasePath("font/");
+        this.mFontTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+        this.mFont = FontFactory.createFromAsset(this.mFontTexture, this, "verdana.TTF", 30, true, Color.WHITE);
+        this.mEngine.getTextureManager().loadTexture(this.mFontTexture);
+        this.mEngine.getFontManager().loadFont(this.mFont);
+        
 		this.knightTexture  = new Texture(128, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		knightTextureRegion = TextureRegionFactory.createTiledFromAsset(this.knightTexture, this,
 																			"gfx/archery.png",0,0,3,4);

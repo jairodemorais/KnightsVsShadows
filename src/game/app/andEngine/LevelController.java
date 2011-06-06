@@ -11,12 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.modifier.PathModifier.Path;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.Sprite;
+import org.anddev.andengine.entity.text.ChangeableText;
+import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
+import org.anddev.andengine.opengl.font.FontFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 public class LevelController {
@@ -34,6 +39,9 @@ public class LevelController {
 	private List<Knight> knights = new ArrayList<Knight>();
 	private List<Arrow> arrows = new ArrayList<Arrow>();
 	private List<Shadow> shadows;
+	private static final int LAYER_SCORE = 1;
+	private ChangeableText mScoreText;
+	private int mScore = 0;
 	
 	public LevelController(AndEngineView view){
 		level= 0;
@@ -64,7 +72,10 @@ public class LevelController {
 	public void loadLevel(int levelId){
 		isGameFinished = false;
 		this.setCurrentLevel(levelId);
-		
+		this.mScoreText = new ChangeableText(mCameraWidth-200, 5, viewController.mFont, "Score: 0", "Score: XXXX".length());
+	    this.mScoreText.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+	    this.mScoreText.setAlpha(0.5f);
+	    scene.getLastChild().attachChild(this.mScoreText);
 		if(levelId == 1)
 			createGrid();
 			loadLevel1();
@@ -132,6 +143,8 @@ public class LevelController {
             }
 		});
 		this.arrows.remove(arrow);
+		this.mScore += 100;
+		this.mScoreText.setText("Score: " + this.mScore);
 	}
 	public void callbackShadowDead(final Shadow shadow){
 		this.viewController.getEngine().runOnUpdateThread(new Runnable() {
